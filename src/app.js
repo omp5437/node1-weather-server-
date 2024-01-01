@@ -2,7 +2,7 @@ const path=require('path')
 const express= require('express')
 const hbs=require('hbs')
 // const geocode=require('./utils/geocode.js')
-const forecast = require('./utils/forecast.js')
+const {forecast,forecastCurrent} = require('./utils/forecast.js')
 const app=express()
 
 const staticPath = path.join(__dirname,'../public')
@@ -17,7 +17,7 @@ app.set('views',viewPath)
 app.use(express.static(staticPath))
 app.get('',(req,res) =>{// used  for main page
     res.render('index',{
-        title: 'Main Page',
+        title: 'Weather Information',
         name: 'Om Prakash'
     })
 })
@@ -62,6 +62,24 @@ app.get('/weather',(req,res) =>{
         location: req.query.address
        })
     })
+})
+
+app.get('/weatherCurrent',(req,res)=>{
+    const lat=req.query.lat
+    const lon=req.query.lon
+
+    forecastCurrent({lat,lon},(error,forecastData)=>{
+        if(error){
+            return res.send({
+               errorMessage: error
+            })
+        }
+      res.send({
+      forecast: ` The weather description is ${forecastData.weather[0].description}, temperature
+      is ${forecastData.main.temp} degrees celsius`,
+       location: forecastData.name
+      })
+   })
 })
 
 
